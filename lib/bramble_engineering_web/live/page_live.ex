@@ -3,37 +3,73 @@ defmodule BrambleEngineeringWeb.PageLive do
 
   @impl true
   def mount(_params, _session, socket) do
-    {:ok, assign(socket, query: "", results: %{})}
+
+    labels = [
+      "Jules Winnfield",
+      "Marsellus Wallace",
+      "Vincent Vega"
+    ]
+
+    values = [15, 32, 65]
+
+    background_colors = [
+      "Crimson",
+      "DarkMagenta",
+      "DarkOrange"
+    ]
+
+    table_data =
+      0..2
+      |> Enum.to_list()
+      |> Enum.map(fn x ->
+        %{
+          label: Enum.at(labels, x),
+          value: Enum.at(values, x),
+          background_color: Enum.at(background_colors, x)
+        }
+      end)
+
+    chart_data = %{
+      labels: labels,
+      values: values,
+      background_colors: background_colors
+    }
+
+    {:ok,
+     socket
+     |> assign(chart_data: chart_data)
+     |> assign(table_data: table_data)}
   end
 
   @impl true
-  def handle_event("suggest", %{"q" => query}, socket) do
-    {:noreply, assign(socket, results: search(query), query: query)}
+  def handle_event("add_to_chart", %{"new_data" => new_data}, socket) do
+    {:noreply, add_point(socket, new_data)}
   end
 
-  @impl true
-  def handle_event("search", %{"q" => query}, socket) do
-    case search(query) do
-      %{^query => vsn} ->
-        {:noreply, redirect(socket, external: "https://hexdocs.pm/#{query}/#{vsn}")}
+  defp add_point(socket, %{"label" => label, "value" => value}) do
+    point = %{
+      label: label,
+      value: value,
+      background_color: random_color()
+    }
 
-      _ ->
-        {:noreply,
-         socket
-         |> put_flash(:error, "No dependencies found matching \"#{query}\"")
-         |> assign(results: %{}, query: query)}
-    end
+    socket
+    |> push_event("new-point", point)
+    |> update(:table_data, fn table_data -> [point | table_data] end)
   end
 
-  defp search(query) do
-    if not BrambleEngineeringWeb.Endpoint.config(:code_reloader) do
-      raise "action disabled when not in development"
-    end
-
-    for {app, desc, vsn} <- Application.started_applications(),
-        app = to_string(app),
-        String.starts_with?(app, query) and not List.starts_with?(desc, ~c"ERTS"),
-        into: %{},
-        do: {app, vsn}
+  # =========== PRIVATE FUNCTIONS ===========
+  defp random_color do
+    [
+      "AliceBlue",
+      "Brown",
+      "Coral",
+      "Crimson",
+      "DarkMagenta",
+      "DarkOrange",
+      "DeepPink",
+      "MediumTurquoise"
+    ]
+    |> Enum.random()
   end
 end
