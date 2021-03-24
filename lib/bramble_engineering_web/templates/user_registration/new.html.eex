@@ -1,0 +1,39 @@
+<div class="flex items-center justify-center max-w-full min-h-screen">
+  <div class="font-sans">
+    <div class="items-center w-96">
+      <div class="relative flex ">
+        <div class="relative w-full">
+          <div class="font-semibold text-center text-black">
+            Register
+          </div>
+          <%= form_for @changeset, Routes.user_registration_path(@conn, :create), fn f -> %>
+            <%= if @changeset.action do %>
+              <div class="alert alert-danger">
+                <p>Oops, something went wrong! Please check the errors below.</p>
+              </div>
+            <% end %>
+
+            <%= label f, :email, class: "px-1 text-sm text-gray-600" %>
+            <%= email_input f, :email, required: true, class: "block w-full px-3 py-2 placeholder-gray-600 bg-white border-2 border-gray-300 rounded-lg shadow-md text-md focus:placeholder-gray-500 focus:bg-white focus:border-gray-600 focus:outline-none" %>
+            <%= error_tag f, :email %>
+
+            <%= label f, :password, class: "px-1 text-sm text-gray-600" %>
+            <%= password_input f, :password, required: true, class: "block w-full px-3 py-2 placeholder-gray-600 bg-whiteb order-2 border-gray-300 rounded-lg shadow-md text-md focus:placeholder-gray-500 focus:bg-white focus:border-gray-600 focus:outline-none" %>
+            <%= error_tag f, :password %>
+
+            <div>
+              <%= submit "Register", class: "mt-3 text-lg font-semibold 
+                bg-gray-800 w-full text-white rounded-lg
+                px-6 py-3 block shadow-xl hover:text-white hover:bg-black" %>
+            </div>
+          <% end %>
+
+          <p>
+            <%= link "Log in", to: Routes.user_session_path(@conn, :new) %> |
+            <%= link "Forgot your password?", to: Routes.user_reset_password_path(@conn, :new) %>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
