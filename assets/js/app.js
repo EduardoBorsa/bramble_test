@@ -17,10 +17,12 @@ import 'alpinejs'
 import { Socket } from 'phoenix'
 import NProgress from 'nprogress'
 import { LiveSocket } from 'phoenix_live_view'
+import Hooks from './hooks'
 
 const csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute('content')
 const liveSocket = new LiveSocket('/live', Socket, {
   params: { _csrf_token: csrfToken },
+  hooks: Hooks,
   dom: {
     onBeforeElUpdated (from, to) {
       if (from.__x) { window.Alpine.clone(from.__x, to) }
