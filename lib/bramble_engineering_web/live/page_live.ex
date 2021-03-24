@@ -1,9 +1,10 @@
 defmodule BrambleEngineeringWeb.PageLive do
   use BrambleEngineeringWeb, :live_view
 
+  alias BrambleEngineeringWeb.FormValidator
+
   @impl true
   def mount(_params, _session, socket) do
-
     labels = [
       "Jules Winnfield",
       "Marsellus Wallace",
@@ -35,14 +36,27 @@ defmodule BrambleEngineeringWeb.PageLive do
       background_colors: background_colors
     }
 
+    changeset = FormValidator.changeset(%FormValidator{})
+
     {:ok,
      socket
      |> assign(chart_data: chart_data)
+     |> assign(changeset: changeset)
      |> assign(table_data: table_data)}
   end
 
   @impl true
-  def handle_event("add_to_chart", %{"new_data" => new_data}, socket) do
+  def handle_event("validate", %{"form_validator" => form_data}, socket) do
+    changeset =
+      FormValidator.changeset(%FormValidator{}, form_data)
+      |> Map.put(:action, :validate)
+
+
+    {:noreply, update(socket, :changeset, fn _ -> changeset end)}
+  end
+
+  @impl true
+  def handle_event("add_to_chart", %{"form_validator" => new_data}, socket) do
     {:noreply, add_point(socket, new_data)}
   end
 
