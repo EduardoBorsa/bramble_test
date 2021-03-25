@@ -36,12 +36,10 @@ defmodule BrambleEngineeringWeb.PageLive do
       background_colors: background_colors
     }
 
-    changeset = FormValidator.changeset(%FormValidator{})
-
     {:ok,
      socket
      |> assign(chart_data: chart_data)
-     |> assign(changeset: changeset)
+     |> assign_changeset()
      |> assign(table_data: table_data)}
   end
 
@@ -50,7 +48,6 @@ defmodule BrambleEngineeringWeb.PageLive do
     changeset =
       FormValidator.changeset(%FormValidator{}, form_data)
       |> Map.put(:action, :validate)
-
 
     {:noreply, update(socket, :changeset, fn _ -> changeset end)}
   end
@@ -69,7 +66,14 @@ defmodule BrambleEngineeringWeb.PageLive do
 
     socket
     |> push_event("new-point", point)
+    |> assign_changeset()
     |> update(:table_data, fn table_data -> [point | table_data] end)
+  end
+
+  # --------- REDUCERS --------
+  defp assign_changeset(socket) do
+    changeset = FormValidator.changeset(%FormValidator{})
+    assign(socket, changeset: changeset)
   end
 
   # =========== PRIVATE FUNCTIONS ===========
