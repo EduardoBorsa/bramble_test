@@ -4,29 +4,33 @@
 # remember to add this file to your .gitignore.
 import Config
 
+database_url =
+  System.get_env("DATABASE_URL") ||
+    raise """
+    environment variable DATABASE_URL is missing.
+    For example: ecto://USER:PASS@HOST/DATABASE
+    """
+
 config :bramble_engineering, BrambleEngineering.Repo,
-  username: "postgres",
-  password: "postgres",
-  database: "bramble_engineering",
-  hostname: "db",
+  # ssl: true,
+  url: database_url,
   show_sensitive_data_on_connection_error: true,
-  pool_size: 10
+  pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10")
+
+secret_key_base =
+  System.get_env("SECRET_KEY_BASE") ||
+    raise """
+    environment variable SECRET_KEY_BASE is missing.
+    You can generate one by calling: mix phx.gen.secret
+    """
 
 config :bramble_engineering, BrambleEngineeringWeb.Endpoint,
-  http: [port: 4000],
-  debug_errors: true,
-  code_reloader: true,
+  http: [
+    port: String.to_integer(System.get_env("PORT") || "4000"),
+    transport_options: [socket_opts: [:inet6]]
+  ],
   check_origin: false,
-  secret_key_base: "eZG/WGvxW6eyhpYze8WgA0j4kMjjh7gPcJ2I59xDyLm7mJbhoxGMe+maYo9soxty",
-  watchers: [
-    node: [
-      "node_modules/webpack/bin/webpack.js",
-      "--mode",
-      "development",
-      "--watch-stdin",
-      cd: Path.expand("../assets", __DIR__)
-    ]
-  ]
+  secret_key_base: secret_key_base
 
 # ## Using releases (Elixir v1.9+)
 #
